@@ -1,0 +1,42 @@
+<div class="hero-card">
+  <div class="hero-card-inner">
+    <!-- ID -->
+    <div class="hero-id">#{{ hero.id.toString().padStart(3, '0') }}</div>
+    
+    <!-- Imagen -->
+    <div class="hero-image">
+      <img [src]="getHeroImage()" [alt]="hero.name" loading="lazy">
+    </div>
+
+    <!-- Nombre -->
+    <div class="hero-name">{{ hero.name }}</div>
+
+    <!-- Editorial y alineación -->
+    <div class="hero-badges">
+      <span class="publisher-badge" [style.background]="getPublisherColor()">
+        {{ getPublisher() }}
+      </span>
+      <span class="alignment-badge" [style.background]="getAlignmentColor()">
+        {{ getAllignment() }}
+      </span>
+    </div>
+
+    <!-- ✅ ESTADÍSTICAS CORREGIDAS -->
+    <div class="hero-stats">
+      <div class="stat-item" *ngFor="let stat of getPowerstats()">
+        <span class="stat-icon">{{ stat.icon }}</span>
+        <span class="stat-label">{{ stat.name }}</span>
+        <span class="stat-value">{{ stat.value }}%</span>
+        <div class="stat-bar">
+          <div 
+            class="stat-bar-fill" 
+            [style.width.%]="stat.value"
+            [style.background]="getStatColor(stat.value)">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+  </div>
+</div>
