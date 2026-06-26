@@ -8,5 +8,38 @@
         </div>
     </div>
 
-    
+    <app-hero-search
+        *ngIf="showSearch"
+        [searchTerm]="searchTerm"
+        (search)="searchHero($event)"
+        (clear)="clearSearch()"
+        (close)="toggleSearch()"
+    >
+    </app-hero-search>
+
+    <!--Loading Spinner-->
+    <div *ngIf="loading" class="loading-container">
+        <div class="spinner"></div>
+        <p>Cargando Heroe...</p>
+    </div>
+
+    <!--Error-->
+    <div *ngIf="error" class="error-container">
+        <p class="error">{{ error }}</p>
+        <button (click)="retry()" class="retry-btn">Reintentar</button>
+    </div>
+
+    <!--Sin resultados-->
+    <div *ngIf="!loading && !error && heroes.length === 0" class="no-results">
+        <p>No se encontraron heroes</p>
+        <button (click)="retry()" class="retry-btn">Volver al Inicio</button>
+    </div>
+
+    <!--Grid de Hero-->
+    <div class="hero-grid" *ngIf="!loading && !error && heroes.length > 0">
+        <app-hero-card
+            *ngFor="let hero of heroes"
+            [hero]="hero">
+        </app-hero-card>
+    </div>
 </div>

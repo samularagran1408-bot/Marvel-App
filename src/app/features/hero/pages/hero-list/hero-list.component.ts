@@ -62,6 +62,7 @@ export class HeroList implements OnInit {
 
   clearSearch(): void {
     this.searchTerm = '';
+    this.loadHeroes();
   }
 
   toggleSearch(): void {
@@ -69,5 +70,9 @@ export class HeroList implements OnInit {
     if (!this.showSearch) {
       this.clearSearch();
     }
+  }
+
+  retry(): void {
+    this.loadHeroes();
   }
 }

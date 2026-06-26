@@ -1,1 +1,11 @@
-<p>hero-search works!</p>
+<div class="search-container">
+    <input 
+        type="text" 
+        [(ngModel)]="searchTerm"
+        (keyup.enter)="onSearch()"
+        placeholder="Buscar Pokemon por nombre o id..."
+        class="search-input">
+    <button (click)="onSearch()" class="search-btn">Buscar</button>
+    <button (click)="onClear()" class="clear-btn">Limpiar</button>
+    <button (click)="onClose()" class="close-btn">X Cerrar</button>
+</div>

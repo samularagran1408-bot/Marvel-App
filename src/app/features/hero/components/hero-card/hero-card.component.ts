@@ -143,4 +143,40 @@ export class HeroCard {
   getStatPercentage(value: number): number {
     return Math.min(Math.max(value, 0), 100);
   }
+
+  getHeight(): string {
+    const height = this.hero?.appearance?.height;
+    if (height && height.length > 0 && height[0] !== '-') {
+      return height[0];
+    }
+    return 'Unknown';
+  }
+
+  getWeight(): string {
+    const weight = this.hero?.appearance?.weight;
+    if (weight && weight.length > 0 && weight[0] !== '-') {
+      return weight[0];
+    }
+    return 'Unknown';
+  }
+
+  getPlaceOfBirth(): string {
+    return this.hero?.biography?.['place-of-birth'] || 'Unknown';
+  }
+
+  getOccupation(): string {
+    return this.hero?.work?.occupation || 'Unknown';
+  }
+
+  getBase(): string {
+    return this.hero?.work?.base || 'Unknown';
+  }
+
+  getGroupAffiliation(): string {
+    return this.hero?.connections?.['group-affiliation'] || 'Unknown';
+  }
+
+  getRelatives(): string {
+    return this.hero?.connections?.relatives || 'Unknown';
+  }
 }
