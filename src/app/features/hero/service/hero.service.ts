@@ -13,31 +13,38 @@ export class HeroService {
   constructor(private http: HttpClient) {}
 
   /**
-   * Busca héroes por nombre (búsqueda parcial)
-   * La API de akabab no tiene búsqueda nativa, así que se filtra localmente
+   * Busca héroes por nombre o por ID. Como la API no ofrece un endpoint de búsqueda
+   * fiable para todos los casos, se filtra la lista cargada localmente.
    */
   searchHeroes(query: string): Observable<Hero[]> {
-    if (!query || query.trim() === '') {
-      return this.loadHeroes(); // Si no hay query, devuelve todos
+    const searchTerm = query?.trim().toLowerCase() ?? '';
+
+    if (!searchTerm) {
+      return this.loadHeroes();
     }
 
+    const parsedId = Number(searchTerm);
+    const isNumericSearch = !Number.isNaN(parsedId);
+
     return this.loadHeroes().pipe(
-      map(heroes => {
-        const searchTerm = query.toLowerCase().trim();
-        return heroes.filter(hero => 
-          hero.name.toLowerCase().includes(searchTerm) ||
-          hero.biography["full-name"]?.toLowerCase().includes(searchTerm) ||
-          hero.biography.aliases?.some(alias => 
-            alias.toLowerCase().includes(searchTerm)
-          )
-        );
-      })
+      map((heroes) =>
+        heroes.filter((hero) => {
+          const byId = isNumericSearch && hero.id === parsedId;
+          const byName = hero.name?.toLowerCase().includes(searchTerm);
+          const byFullName = hero.biography?.['full-name']?.toLowerCase().includes(searchTerm);
+          const byAlias = Array.isArray(hero.biography?.aliases)
+            ? hero.biography.aliases.some((alias) => alias?.toLowerCase().includes(searchTerm))
+            : false;
+
+          return byId || byName || byFullName || byAlias;
+        })
+      )
     );
   }
 
   loadHeroes(): Observable<Hero[]> {
     return this.http.get<Hero[]>(`${this.API_URL}/all.json`).pipe(
-      map((heroes) => heroes ?? []),
+      map((heroes) => (Array.isArray(heroes) ? heroes : [])),
       catchError((error) => {
         console.error('Error al cargar los héroes:', error);
         return of([]);
@@ -55,7 +62,8 @@ export class HeroService {
   }
 
   getHeroesById(id: number): Observable<Hero | null> {
-    return this.http.get<Hero>(`${this.API_URL}/id/${id}.json`).pipe(
+    return this.loadHeroes().pipe(
+      map((heroes) => heroes.find((hero) => hero.id === id) ?? null),
       catchError((error) => {
         console.error(`Error fetching hero with ID ${id}:`, error);
         return of(null);
@@ -64,7 +72,22 @@ export class HeroService {
   }
 
   getHeroByName(name: string): Observable<Hero | null> {
-    return this.http.get<Hero>(`${this.API_URL}/search/${name}.json`).pipe(
+    const searchTerm = name?.trim().toLowerCase() ?? '';
+
+    if (!searchTerm) {
+      return of(null);
+    }
+
+    return this.loadHeroes().pipe(
+      map((heroes) => {
+        return (
+          heroes.find((hero) => {
+            const byName = hero.name?.toLowerCase() === searchTerm;
+            const byFullName = hero.biography?.['full-name']?.toLowerCase() === searchTerm;
+            return byName || byFullName;
+          }) ?? null
+        );
+      }),
       catchError((error) => {
         console.error(`Error fetching hero with name ${name}:`, error);
         return of(null);

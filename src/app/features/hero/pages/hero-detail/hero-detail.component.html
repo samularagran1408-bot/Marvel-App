@@ -1,15 +1,163 @@
 <div class="container">
-    <button (click)="goBack()" class="back-btn">Regresar</button>
+  <!-- Botón Regresar -->
+  <button (click)="goBack()" class="back-btn">Regresar</button>
 
-    <!--Loading-->
-    <div *ngIf="loading" class="loading-container">
-        <div class="spinner"></div>
-        <p>Cargando Heroe...</p>
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Cargando Héroe...</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error" class="error-container">
+    <p class="error">{{ error }}</p>
+    <button (click)="loadHeroById(hero?.id ?? 0)" class="retry-btn">
+      Reintentar
+    </button>
+  </div>
+
+  <!-- Detalle del Pokémon -->
+  <div *ngIf="hero && !loading && !error" class="hero-detail">
+    
+    <!-- Cabecera -->
+    <div class="detail-header">
+      <div class="hero-id">#{{ hero.id.toString().padStart(3, '0') }}</div>
+      <h2>{{ hero.name | titlecase }}</h2>
+      
+      <!-- Badges: Publisher y Alignment -->
+      <div class="hero-badges">
+        <span class="publisher-badge" [style.background]="getPublisherColor()">
+          {{ getPublisher() }}
+        </span>
+        <span class="alignment-badge" [style.background]="getAlignmentColor()">
+          {{ getAlignment() }}
+        </span>
+        <span class="gender-badge" [style.background]="getGenderColor()">
+          {{ getGender() }}
+        </span>
+      </div>
     </div>
 
-    <!--Error-->
-    <div *ngIf="error" class="error-container">
-        <p class="error">{{ error }}</p>
-        <button (click)="loadHeroById(hero?.id ?? 0)" class="retry-btn"></button>
+    <!-- Contenido Principal -->
+    <div class="detail-content">
+      
+      <!-- Imagen -->
+      <div class="detail-image">
+        <img 
+          [src]="getHeroImage()" 
+          [alt]="hero.name" 
+          loading="lazy"
+          (error)="onImageError()">
+      </div>
+
+      <!-- Información -->
+      <div class="detail-info">
+        
+        <!-- Nombre Completo y Alias -->
+        <div class="info-section">
+          <h3>Identidad</h3>
+          <div class="identity-info">
+            <div class="info-item">
+              <span class="info-label">Nombre completo</span>
+              <span class="info-value">{{ getFullName() }}</span>
+            </div>
+            <div class="info-item" *ngIf="getAliases().length > 0">
+              <span class="info-label">Alias</span>
+              <span class="info-value">{{ getAliases().join(', ') }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Estadísticas -->
+        <div class="info-section">
+          <h3>Estadísticas</h3>
+          <div class="stats">
+            <div *ngFor="let stat of getPowerstats()" class="stat-item">
+              <span class="stat-label">
+                {{ stat.icon }} {{ stat.name }}
+              </span>
+              <div class="stat-bar-container">
+                <div 
+                  class="stat-bar" 
+                  [style.width.%]="stat.value"
+                  [style.background]="getStatColor(stat.value)">
+                  {{ stat.value }}%
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Apariencia Física -->
+        <div class="info-section">
+          <h3>Apariencia</h3>
+          <div class="appearance-grid">
+            <div class="appearance-item">
+              <span class="appearance-label">Altura</span>
+              <span class="appearance-value">{{ getHeight() }}</span>
+            </div>
+            <div class="appearance-item">
+              <span class="appearance-label">Peso</span>
+              <span class="appearance-value">{{ getWeight() }}</span>
+            </div>
+            <div class="appearance-item">
+              <span class="appearance-label">Raza</span>
+              <span class="appearance-value">{{ getRace() }}</span>
+            </div>
+            <div class="appearance-item">
+              <span class="appearance-label">Cabello</span>
+              <span class="appearance-value">{{ getHairColor() }}</span>
+            </div>
+            <div class="appearance-item">
+              <span class="appearance-label">Ojos</span>
+              <span class="appearance-value">{{ getEyeColor() }}</span>
+            </div>
+            <div class="appearance-item">
+              <span class="appearance-label">Género</span>
+              <span class="appearance-value">{{ getGender() }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Biografía -->
+        <div class="info-section">
+          <h3>Biografía</h3>
+          <div class="biography-info">
+            <div class="bio-item">
+              <span class="bio-label">Primera aparición</span>
+              <span class="bio-value">{{ getFirstAppearance() }}</span>
+            </div>
+            <div class="bio-item" *ngIf="getPlaceOfBirth() !== 'Unknown'">
+              <span class="bio-label">Lugar de nacimiento</span>
+              <span class="bio-value">{{ getPlaceOfBirth() }}</span>
+            </div>
+            <div class="bio-item" *ngIf="getOccupation() !== 'Unknown'">
+              <span class="bio-label">Ocupación</span>
+              <span class="bio-value">{{ getOccupation() }}</span>
+            </div>
+            <div class="bio-item" *ngIf="getBase() !== 'Unknown'">
+              <span class="bio-label">Base</span>
+              <span class="bio-value">{{ getBase() }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Conexiones -->
+        <div class="info-section" *ngIf="getGroupAffiliation() !== 'Unknown' || getRelatives() !== 'Unknown'">
+          <h3>Conexiones</h3>
+          <div class="connections-info">
+            <div class="connection-item" *ngIf="getGroupAffiliation() !== 'Unknown'">
+              <span class="connection-label">Grupo/Afiliación</span>
+              <span class="connection-value">{{ getGroupAffiliation() }}</span>
+            </div>
+            <div class="connection-item" *ngIf="getRelatives() !== 'Unknown'">
+              <span class="connection-label">Familiares</span>
+              <span class="connection-value">{{ getRelatives() }}</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
+  </div>
 </div>

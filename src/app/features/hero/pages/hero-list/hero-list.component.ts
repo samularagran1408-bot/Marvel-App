@@ -39,25 +39,30 @@ export class HeroList implements OnInit {
 
   searchHero(term: string): void {
     this.searchTerm = term;
-    if (this.searchTerm.trim()) {
-      this.loading = true;
-      this.error = null;
+    const normalizedTerm = this.searchTerm.trim();
 
-      this.heroService.getHeroByName(this.searchTerm).subscribe({
-        next: (hero) => {
-          this.heroes = hero ? [hero] : [];
-          this.loading = false;
-          if (!hero) {
-            this.error = 'No se encontró ningún heroe con ese nombre.';
-          }
-        },
-        error: (err) => {
-          this.error = 'Error al buscar al heroe';
-          this.loading = false;
-          console.error(err);
-        }
-      });
+    if (!normalizedTerm) {
+      this.loadHeroes();
+      return;
     }
+
+    this.loading = true;
+    this.error = null;
+
+    this.heroService.searchHeroes(normalizedTerm).subscribe({
+      next: (heroes) => {
+        this.heroes = heroes;
+        this.loading = false;
+        if (heroes.length === 0) {
+          this.error = 'No se encontró ningún héroe con ese criterio.';
+        }
+      },
+      error: (err) => {
+        this.error = 'Error al buscar al héroe';
+        this.loading = false;
+        console.error(err);
+      },
+    });
   }
 
   clearSearch(): void {

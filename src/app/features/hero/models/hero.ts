@@ -14,7 +14,7 @@ export interface HeroResult {
 }
 
 export interface Hero {
-    id: string;                    // ID del héroe
+    id: number;                    // ID del héroe
     name: string;                  // Nombre gender
     response: string;              // "success"
     powerstats: PowerStats;        // Estadísticas
